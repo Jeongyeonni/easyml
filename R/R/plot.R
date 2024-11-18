@@ -132,6 +132,38 @@ plot_predictions_binomial <- function(y_true, y_pred) {
   g
 }
 
+#' Plot poisson predictions.
+#' 
+#' Plots a logistic plot of the ground truth (correct) target values 
+#' and the estimated target values.
+#'
+#' @param y_true Ground truth (correct) target values.
+#' @param y_pred Estimated target values.
+#' @return A ggplot object. This plot may be rendered by outputting it to the command line or modified using ggplot semantics.
+#' @family plot
+#' @export
+plot_predictions_poisson <- function(y_true, y_pred) {
+  df <- data.frame(y_true = y_true, y_pred = y_pred, 
+                   stringsAsFactors = FALSE)
+  cor_score <- round(measure_correlation_score(y_true, y_pred), digits = 2)
+  msg <- "Actual vs. Predicted y values (Correlation Score = "
+  .title <- paste0(msg, cor_score, ")")
+  g <- 
+    ggplot2::ggplot(df, ggplot2::aes(x = y_pred, y = y_true)) +
+    ggplot2::geom_point() + 
+    ggplot2::stat_smooth(method = "glm", method.args = list(family = "poisson"), se = FALSE) + 
+    ggplot2::scale_x_continuous("Predicted y values", 
+                                breaks = seq(0, max(y_pred, y_true), length.out = 10)
+    ) +
+    ggplot2::scale_y_continuous("True y values",
+                                breaks = seq(0, max(y_pred, y_true), length.out = 10)
+    ) +
+    ggplot2::ggtitle(.title) + 
+    ggplot2::theme_bw()
+  
+  g
+}
+
 #' Plot ROC Curve.
 #' 
 #' Given the ground truth (correct) target values and the estimated 
@@ -259,6 +291,26 @@ plot_model_performance_binomial_auc_score <- function(x) {
   g <- 
     plot_model_performance_histogram(x, name) + 
     ggplot2::scale_x_continuous(paste0(name, " Score"), limits = c(0, 1), 
+                                breaks = seq(0, 1, 0.05), 
+                                minor_breaks = seq(0, 1, 0.01))
+  
+  g
+}
+
+
+#' Plot histogram of the Poisson Deviance metrics.
+#' 
+#' This function plots a histogram of the Poisson Deviance metrics.
+#'
+#' @param x A vector, the Poisson Deviance metrics to be plotted as a histogram.
+#' @return A ggplot object. This plot may be rendered by outputting it to the command line or modified using ggplot semantics.
+#' @family plot
+#' @export
+plot_model_performance_poisson_deviance_score <- function(x) {
+  name <- "Deviance"
+  g <- 
+    plot_model_performance_histogram(x, name) + 
+    ggplot2::scale_x_continuous(paste0(name, " Score"), 
                                 breaks = seq(0, 1, 0.05), 
                                 minor_breaks = seq(0, 1, 0.01))
   

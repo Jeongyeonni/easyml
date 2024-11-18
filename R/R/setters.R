@@ -185,10 +185,13 @@ set_resample <- function(resample = NULL, family = NULL) {
       resample <- resample_simple_train_test_split
     } else if (family == "binomial") {
       resample <- resample_stratified_class_train_test_split
+    } else if (family == "poisson") {
+      resample <- resample_stratified_poisson_train_test_split
     }
   }
   resample
 }
+
 
 #' Set preprocess function.
 #' 
@@ -229,6 +232,8 @@ set_measure <- function(measure = NULL, algorithm, family) {
       measure <- measure_correlation_score
     } else if (family == "binomial") {
       measure <- measure_auc_score
+    } else if (family == "poisson") {
+      measure <- measure_deviance_score
     }
   }
 
@@ -250,6 +255,8 @@ set_plot_predictions <- function(algorithm, family) {
     plot_predictions <- plot_predictions_gaussian
   } else if (family == "binomial") {
     plot_predictions <- plot_predictions_binomial
+  } else if (family == "poisson") {
+    plot_predictions <- plot_predictions_poisson
   }
   
   if (is.null(plot_predictions)) 
@@ -276,6 +283,8 @@ set_plot_model_performance <- function(measure) {
     plot_model_performance <- plot_model_performance_binomial_auc_score
   } else if (identical(measure, measure_correlation_score)) {
     plot_model_performance <- plot_model_performance_gaussian_correlation_score
+  } else if (identical(measure, measure_deviance_score)) {
+    plot_model_performance <- plot_model_performance_poisson_deviance_score
   }
   
   if (is.null(plot_model_performance)) 

@@ -56,3 +56,27 @@ measure_correlation_score <- function(y_true, y_pred) {
 measure_auc_score <- function(y_true, y_pred) {
   as.numeric(pROC::roc(as.numeric(y_true), as.numeric(y_pred))$auc)
 }
+
+
+#' Measure Poisson Deviance.
+#' 
+#' Given the ground truth (correct) target values and the estimated target 
+#' values, calculates the Poisson deviance metric.
+#'
+#' @param y_true A numeric vector; the ground truth (correct) target values.
+#' @param y_pred A numeric vector; the estimated target values.
+#' @return A numeric vector of length one; the Poisson deviance metric.
+#' @family measure
+#' @export
+measure_deviance_score <- function(y_true, y_pred) {
+  # Small epsilon to avoid log(0) issues
+  epsilon <- 1e-10
+  
+  # Deviance formula
+  deviance <- 2 * sum(
+    y_true * log((y_true + epsilon) / (y_pred + epsilon)) - (y_true - y_pred)
+  )
+  
+  return(deviance)
+}
+

@@ -60,7 +60,7 @@ predict_model <- function(object, newx = NULL) {
 #' @param .data A data.frame; the data to be analyzed.
 #' @param dependent_variable A character vector of length one; the dependent variable for this analysis.
 #' @param algorithm A character vector of length one; the algorithm to run on the data. Choices are currently one of c("glinternet", "glmnet", "neural_network", "random_forest", "support_vector_machine").
-#' @param family A character vector of length one; the type of regression to run on the data. Choices are one of c("gaussian", "binomial"). Defaults to "gaussian".
+#' @param family A character vector of length one; the type of regression to run on the data. Choices are one of c("gaussian", "binomial", "poisson"). Defaults to "gaussian".
 #' @param resample A function; the function for resampling the data. Defaults to NULL.
 #' @param preprocess A function; the function for preprocessing the data. Defaults to NULL.
 #' @param measure A function; the function for measuring the results. Defaults to NULL.
@@ -252,6 +252,11 @@ easy_analysis <- function(.data, dependent_variable, algorithm,
     if (is.factor(y)) {
       y <- as.numeric(y) - 1
     }
+  }else if (family == "poisson") {
+    # Check that dependent variable is non-negative integers
+    if (any(y < 0)|| any(y != floor(y))){
+      stop("Error! Dependent variable must be non-negative integers!")
+    }
   }
   
   # Capture dependent variable
@@ -352,6 +357,17 @@ easy_analysis <- function(.data, dependent_variable, algorithm,
         ggplot2::labs(subtitle = "Test Dataset")
       object[["plot_roc_single_train_test_split_test"]] <- p_test
     }
+    
+    if (family == "poisson") {
+      p_train <- plot_predictions_poisson(y_train, predictions_train) + 
+        ggplot2::labs(subtitle = "Train Dataset")
+      object[["plot_predictions_single_train_test_split_train"]] <- p_train
+      p_test <- plot_predictions_poisson(y_test, predictions_test) + 
+        ggplot2::labs(subtitle = "Test Dataset")
+      object[["plot_predictions_single_train_test_split_test"]] <- p_test
+    }
+    
+    
   }
   
   # Assess if measures of model performance for multiple train-test splits

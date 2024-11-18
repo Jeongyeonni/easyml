@@ -119,6 +119,62 @@ resample_stratified_class_train_test_split <- function(X, y, train_size = 0.667,
   list(X_train = X_train, X_test = X_test, y_train = y_train, y_test = y_test)
 }
 
+
+
+
+#' Stratified Train-Test Split for Poisson Data
+#'
+#' This function performs a stratified train-test split for Poisson data, 
+#' maintaining the proportion of zeros and non-zeros in the dependent variable.
+#'
+#' @param X A data.frame, the data to be resampled.
+#' @param y A numeric vector, the dependent variable with non-negative integers.
+#' @param train_size A numeric vector of length one; specifies what proportion of the data should be used for the training data set. Defaults to 0.667.
+#' @param foldid Not currently supported in this function.
+#' @param random_state An integer vector of length one; specifies the seed to be used for the analysis. Defaults to NULL.
+#' @return A list containing training and test sets for X and y.
+#' @family resample
+#' @export
+resample_stratified_poisson_train_test_split <- function(X, y, train_size = 0.667, foldid = NULL, random_state = NULL) {
+  # Set random state
+  set_random_state(random_state)
+  
+  # Calculate number of observations
+  n_obs <- length(y)
+  
+  # Identify indices for zero and non-zero values
+  index_zero <- which(y == 0)
+  index_nonzero <- which(y > 0)
+  
+  # Calculate number of zero and non-zero observations
+  n_zero <- length(index_zero)
+  n_nonzero <- length(index_nonzero)
+  
+  # Calculate number of zero and non-zero observations in the train set
+  n_zero_train <- round(n_zero * train_size)
+  n_nonzero_train <- round(n_nonzero * train_size)
+  
+  # Generate indices for zero and non-zero observations in the train set
+  index_zero_train <- sample(index_zero, n_zero_train, replace = FALSE)
+  index_nonzero_train <- sample(index_nonzero, n_nonzero_train, replace = FALSE)
+  
+  # Combine train indices
+  index_train <- c(index_zero_train, index_nonzero_train)
+  
+  # Create boolean mask for train set
+  mask <- 1:n_obs %in% index_train
+  
+  # Create splits
+  X_train <- X[mask, , drop = FALSE]
+  X_test <- X[!mask, , drop = FALSE]
+  y_train <- y[mask]
+  y_test <- y[!mask]
+  
+  # Return split data
+  list(X_train = X_train, X_test = X_test, y_train = y_train, y_test = y_test)
+}
+
+
 #' Sample with respect to an identification vector
 #'
 #' This will sample the training and test sets so that case identifiers (e.g. subject ID's) are not shared across training and test sets.
@@ -160,3 +216,7 @@ resample_fold_train_test_split <- function(X, y, train_size = 0.667, foldid = NU
   # Return the split data
   list(X_train = X_train, X_test = X_test, y_train = y_train, y_test = y_test)
 }
+
+
+
+
