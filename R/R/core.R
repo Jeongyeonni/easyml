@@ -356,9 +356,7 @@ easy_analysis <- function(.data, dependent_variable, algorithm,
       p_test <- plot_roc_curve(y_test, predictions_test) + 
         ggplot2::labs(subtitle = "Test Dataset")
       object[["plot_roc_single_train_test_split_test"]] <- p_test
-    }
-    
-    if (family == "poisson") {
+    } else if (family == "poisson") {
       p_train <- plot_predictions_poisson(y_train, predictions_train) + 
         ggplot2::labs(subtitle = "Train Dataset")
       object[["plot_predictions_single_train_test_split_train"]] <- p_train
